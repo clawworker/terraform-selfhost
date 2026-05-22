@@ -1,0 +1,6 @@
+# Copy to terraform.tfvars and fill in your values.
+
+project_id          = "my-tenant-project"
+region              = "us-central1"
+platform_project_id = "clawworker-ai"
+platform_sa_email   = "control-panel-sa@clawworker-ai.iam.gserviceaccount.com"
