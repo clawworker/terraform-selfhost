@@ -1,11 +1,3 @@
-# Per-tenant regional Internal Application Load Balancer.
-#
-# The URL map starts as a skeleton with no host_rules — agent VMs aren't
-# attached yet (that's the platform's job at provision time, in a later
-# phase). The platform impersonates the SA and ADDS host_rules pointing
-# `<agent>.<org_slug>.<platform_domain>` at per-VM backend services it also
-# creates. Removing an agent reverses the same lifecycle.
-
 resource "google_compute_region_health_check" "lb" {
   project = var.project_id
   name    = "${var.resource_prefix}-health"
@@ -22,11 +14,10 @@ resource "google_compute_region_health_check" "lb" {
   unhealthy_threshold = 3
 }
 
-# Stub backend service that the URL map defaults to until the platform
-# attaches real per-VM backends via host_rules. Has no NEGs — requests
-# routed here return 502, which is the right signal for "host doesn't
-# match any configured rule." Per-VM backend services with real NEGs are
-# created at agent-provision time and inserted into the URL map.
+# Stub backend with no NEGs. URL maps require a default; this returns 502
+# for any unmatched host_rule, which is the right signal for "no agent at
+# this hostname." Per-VM backends + host_rules are added by the platform
+# at agent-provision time.
 resource "google_compute_region_backend_service" "stub" {
   project               = var.project_id
   name                  = "${var.resource_prefix}-default-stub"
@@ -50,8 +41,6 @@ resource "google_compute_region_target_http_proxy" "lb" {
   url_map = google_compute_region_url_map.lb.id
 }
 
-# Static internal IP for the ILB frontend. PSC service attachment targets
-# THIS forwarding rule via the IP/port the LB listens on.
 resource "google_compute_address" "lb" {
   project      = var.project_id
   name         = "${var.resource_prefix}-lb-ip"
@@ -73,6 +62,5 @@ resource "google_compute_forwarding_rule" "lb" {
   load_balancing_scheme = "INTERNAL_MANAGED"
   target                = google_compute_region_target_http_proxy.lb.id
 
-  # Proxy-only subnet must exist before the forwarding rule can attach.
   depends_on = [google_compute_subnetwork.proxy_only]
 }
