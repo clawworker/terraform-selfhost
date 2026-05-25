@@ -12,6 +12,8 @@ resource "google_compute_region_health_check" "lb" {
   timeout_sec         = 5
   healthy_threshold   = 2
   unhealthy_threshold = 3
+
+  depends_on = [module.apis]
 }
 
 # Stub backend with no NEGs. URL maps require a default; this returns 502
@@ -48,6 +50,11 @@ resource "google_compute_address" "lb" {
   subnetwork   = module.network.subnets[local.workload_subnet_key].id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
+
+  # subnetwork ref above implicitly waits for module.network → module.apis,
+  # but the address is otherwise an APIs-dependent compute resource that
+  # could exist independently of the subnet. Keep the explicit edge.
+  depends_on = [module.apis]
 }
 
 resource "google_compute_forwarding_rule" "lb" {

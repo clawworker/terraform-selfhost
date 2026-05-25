@@ -5,6 +5,8 @@ module "network" {
   network_name = "${var.resource_prefix}-vpc"
   routing_mode = "REGIONAL"
 
+  depends_on = [module.apis]
+
   subnets = [
     {
       subnet_name           = "${var.resource_prefix}-subnet"

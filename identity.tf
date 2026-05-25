@@ -3,12 +3,16 @@ resource "google_service_account" "impersonator" {
   account_id   = "${var.resource_prefix}-control-panel-impersonator"
   display_name = "ClawWorker control-panel impersonator"
   description  = "Platform impersonates this SA via IAM Credentials API. Removing platform_can_impersonate revokes access."
+
+  depends_on = [module.apis]
 }
 
 resource "google_service_account" "agent" {
   project      = var.project_id
   account_id   = "${var.resource_prefix}-agent"
   display_name = "ClawWorker agent runtime"
+
+  depends_on = [module.apis]
 }
 
 resource "google_project_iam_member" "impersonator_compute" {

@@ -21,13 +21,11 @@ Nothing is created in the platform's project; nothing is created outside the reg
 
 ## Tenant prerequisites
 
-- A GCP project where you have `Owner` (easiest) or `Editor` + `Project IAM Admin`.
-- The `Compute Engine`, `IAM Credentials`, and `Service Networking` APIs enabled.
-  ```
-  gcloud services enable compute.googleapis.com iamcredentials.googleapis.com servicenetworking.googleapis.com --project <your-project>
-  ```
+- A GCP project where you have `Owner` (easiest) or `Editor` + `Project IAM Admin` + `Service Usage Admin` (the last is needed for the module to enable required APIs on your behalf).
 - Local Terraform >= 1.5 and `gcloud auth application-default login` completed.
 - The **platform project ID** and **platform SA email** from the ClawWorker onboarding wizard.
+
+The module enables the GCP APIs it needs on your project automatically (`compute`, `iam`, `iamcredentials`, `servicenetworking`). It does **not** disable them on `terraform destroy` — your other workloads using those APIs aren't affected by a teardown of this module.
 
 ## Usage
 
