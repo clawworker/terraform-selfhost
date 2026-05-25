@@ -45,7 +45,7 @@ resource "google_compute_address" "lb" {
   project      = var.project_id
   name         = "${var.resource_prefix}-lb-ip"
   region       = var.region
-  subnetwork   = google_compute_subnetwork.workload.id
+  subnetwork   = module.network.subnets[local.workload_subnet_key].id
   address_type = "INTERNAL"
   purpose      = "GCE_ENDPOINT"
 }
@@ -54,13 +54,14 @@ resource "google_compute_forwarding_rule" "lb" {
   project               = var.project_id
   name                  = "${var.resource_prefix}-lb"
   region                = var.region
-  network               = google_compute_network.vpc.id
-  subnetwork            = google_compute_subnetwork.workload.id
+  network               = module.network.network_id
+  subnetwork            = module.network.subnets[local.workload_subnet_key].id
   ip_address            = google_compute_address.lb.address
   ip_protocol           = "TCP"
   port_range            = "80"
   load_balancing_scheme = "INTERNAL_MANAGED"
   target                = google_compute_region_target_http_proxy.lb.id
 
-  depends_on = [google_compute_subnetwork.proxy_only]
+  # Proxy-only subnet must exist before the forwarding rule attaches.
+  depends_on = [module.network]
 }

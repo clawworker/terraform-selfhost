@@ -15,11 +15,11 @@ output "region" {
 }
 
 output "network" {
-  value = google_compute_network.vpc.name
+  value = module.network.network_name
 }
 
 output "subnet" {
-  value = google_compute_subnetwork.workload.name
+  value = module.network.subnets[local.workload_subnet_key].name
 }
 
 output "url_map_name" {
@@ -31,5 +31,5 @@ output "health_check_name" {
 }
 
 output "psc_connection_uri" {
-  value = google_compute_service_attachment.psc.id
+  value = module.psc.service_attachment_id
 }
