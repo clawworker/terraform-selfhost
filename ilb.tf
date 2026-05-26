@@ -5,7 +5,7 @@ resource "google_compute_region_health_check" "lb" {
 
   http_health_check {
     port         = 8080
-    request_path = "/health"
+    request_path = "/healthz"
   }
 
   check_interval_sec  = 10
