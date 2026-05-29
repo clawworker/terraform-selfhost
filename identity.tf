@@ -15,6 +15,24 @@ resource "google_service_account" "agent" {
   depends_on = [module.apis]
 }
 
+# The agent VM runs the google-cloud-ops-agent, which ships logs and metrics
+# to Cloud Logging/Monitoring AS THE ATTACHED agent SA. Without these grants
+# the ops agent fails every export with logging.logEntries.create /
+# monitoring time-series PERMISSION_DENIED. Platform-managed VMs use the
+# project default compute SA (which already carries these roles), so this gap
+# only surfaces for self-hosted tenants that run this dedicated minimal SA.
+resource "google_project_iam_member" "agent_log_writer" {
+  project = var.project_id
+  role    = "roles/logging.logWriter"
+  member  = "serviceAccount:${google_service_account.agent.email}"
+}
+
+resource "google_project_iam_member" "agent_metric_writer" {
+  project = var.project_id
+  role    = "roles/monitoring.metricWriter"
+  member  = "serviceAccount:${google_service_account.agent.email}"
+}
+
 resource "google_project_iam_member" "impersonator_compute" {
   project = var.project_id
   role    = "roles/compute.instanceAdmin.v1"
