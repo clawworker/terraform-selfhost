@@ -4,8 +4,12 @@ resource "google_compute_region_health_check" "lb" {
   region  = var.region
 
   http_health_check {
-    port         = 8080
-    request_path = "/health"
+    port = 8080
+    # The clawworker agent registers ONLY /healthz (+ /readyz) — there is no
+    # /health route. Probing /health returns 404, leaving every backend
+    # permanently UNHEALTHY → the ILB serves 503 "no healthy upstream" on every
+    # agent URL even when the agent is fine.
+    request_path = "/healthz"
   }
 
   check_interval_sec  = 10

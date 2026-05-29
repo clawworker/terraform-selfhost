@@ -18,5 +18,7 @@ module "apis" {
     "iam.googleapis.com",               # service accounts + IAM bindings
     "iamcredentials.googleapis.com",    # platform impersonates impersonator SA at runtime
     "servicenetworking.googleapis.com", # PSC producer infrastructure
+    "logging.googleapis.com",           # ops-agent ships VM logs as the agent SA
+    "monitoring.googleapis.com",        # ops-agent ships VM metrics as the agent SA
   ]
 }
