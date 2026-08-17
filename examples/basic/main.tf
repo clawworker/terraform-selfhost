@@ -27,6 +27,12 @@ module "clawworker" {
   platform_sa_email   = var.platform_sa_email
 }
 
+# For verifying the apply. The platform derives this name, so it isn't pasted
+# into the wizard.
+output "content_bucket_name" {
+  value = module.clawworker.content_bucket_name
+}
+
 # Pass these to the ClawWorker onboarding wizard. Run:
 #   terraform output -json onboarding_payload
 output "onboarding_payload" {

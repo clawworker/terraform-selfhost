@@ -20,5 +20,6 @@ module "apis" {
     "servicenetworking.googleapis.com", # PSC producer infrastructure
     "logging.googleapis.com",           # ops-agent ships VM logs as the agent SA
     "monitoring.googleapis.com",        # ops-agent ships VM metrics as the agent SA
+    "storage.googleapis.com",           # org content bucket in storage.tf
   ]
 }

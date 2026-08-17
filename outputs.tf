@@ -33,3 +33,10 @@ output "health_check_name" {
 output "psc_connection_uri" {
   value = module.psc.service_attachment_id
 }
+
+# For the tenant's own verification. Not part of onboarding_payload: the platform
+# derives this name, so there is nothing to paste.
+output "content_bucket_name" {
+  value       = google_storage_bucket.org_content.name
+  description = "Bucket holding this org's published artifacts."
+}
