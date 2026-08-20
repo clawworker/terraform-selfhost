@@ -51,6 +51,7 @@ output "clawworker_outputs" {
     url_map_name          = module.clawworker.url_map_name
     health_check_name     = module.clawworker.health_check_name
     psc_connection_uri    = module.clawworker.psc_connection_uri
+    content_bucket_name   = module.clawworker.content_bucket_name
   }
 }
 ```
@@ -62,6 +63,8 @@ terraform init
 terraform plan
 terraform apply
 ```
+
+If `apply` fails with "already exists" on `google_storage_bucket.org_content` (bucket names are unique across all of GCP, not just this project), re-run it with any full bucket name you like: `terraform apply -var content_bucket_name_override=my-chosen-name`.
 
 Then paste the outputs (`terraform output clawworker_outputs`) into the ClawWorker onboarding wizard. The platform validates connectivity, creates its consumer PSC endpoint, and flips your org to self-hosted mode.
 

@@ -12,6 +12,11 @@ variable "project_id" { type = string }
 variable "region" { type = string }
 variable "platform_project_id" { type = string }
 variable "platform_sa_email" { type = string }
+variable "content_bucket_name_override" {
+  type        = string
+  default     = ""
+  description = "Leave empty. Only set this if apply failed because the plain bucket name was already taken by an unrelated bucket elsewhere on GCS."
+}
 
 provider "google" {
   project = var.project_id
@@ -21,14 +26,15 @@ provider "google" {
 module "clawworker" {
   source = "../.."
 
-  project_id          = var.project_id
-  region              = var.region
-  platform_project_id = var.platform_project_id
-  platform_sa_email   = var.platform_sa_email
+  project_id                    = var.project_id
+  region                        = var.region
+  platform_project_id           = var.platform_project_id
+  platform_sa_email             = var.platform_sa_email
+  content_bucket_name_override  = var.content_bucket_name_override
 }
 
-# For verifying the apply. The platform derives this name, so it isn't pasted
-# into the wizard.
+# For verifying the apply — also rides along in onboarding_payload below,
+# since the platform can no longer assume the plain name always holds.
 output "content_bucket_name" {
   value = module.clawworker.content_bucket_name
 }
@@ -46,5 +52,6 @@ output "onboarding_payload" {
     url_map_name           = module.clawworker.url_map_name
     health_check_name      = module.clawworker.health_check_name
     psc_connection_uri     = module.clawworker.psc_connection_uri
+    content_bucket_name    = module.clawworker.content_bucket_name
   }
 }
