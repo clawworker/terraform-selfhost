@@ -28,7 +28,7 @@ variable "resource_prefix" {
 variable "content_bucket_name_override" {
   type        = string
   default     = ""
-  description = "Leave empty. Bucket names are unique across all of GCP, not just this project, so the default name can rarely already belong to an unrelated bucket. If apply fails on google_storage_bucket.org_content with 'already exists', set this to any full bucket name you like and re-apply."
+  description = "Leave empty. Bucket names are unique across all of GCS, not per-project, so the default name can already be taken. If apply fails with a 409 on google_storage_bucket.org_content, set any valid bucket name (3-63 chars, lowercase, numbers, hyphens) and re-apply."
 }
 
 variable "subnet_cidr" {

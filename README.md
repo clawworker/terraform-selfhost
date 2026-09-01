@@ -64,7 +64,13 @@ terraform plan
 terraform apply
 ```
 
-If `apply` fails with "already exists" on `google_storage_bucket.org_content` (bucket names are unique across all of GCP, not just this project), re-run it with any full bucket name you like: `terraform apply -var content_bucket_name_override=my-chosen-name`.
+If `apply` fails on `google_storage_bucket.org_content` with a 409 conflict — typically *"Sorry, that name is not available"* — the default name belongs to an unrelated bucket somewhere else on GCS (bucket names are globally unique, not per-project). Re-apply with a name of your own:
+
+```
+terraform apply -var content_bucket_name_override=my-chosen-name
+```
+
+Any valid GCS bucket name works: 3–63 characters, lowercase letters, numbers and hyphens.
 
 Then paste the outputs (`terraform output clawworker_outputs`) into the ClawWorker onboarding wizard. The platform validates connectivity, creates its consumer PSC endpoint, and flips your org to self-hosted mode.
 

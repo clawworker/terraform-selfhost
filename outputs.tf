@@ -34,9 +34,6 @@ output "psc_connection_uri" {
   value = module.psc.service_attachment_id
 }
 
-# Part of onboarding_payload (see the examples and README) — the platform
-# can no longer assume the plain "{project_id}-content" name always holds,
-# since content_bucket_name_override can produce a different one.
 output "content_bucket_name" {
   value       = google_storage_bucket.org_content.name
   description = "Bucket holding this org's published artifacts."
