@@ -33,3 +33,8 @@ output "health_check_name" {
 output "psc_connection_uri" {
   value = module.psc.service_attachment_id
 }
+
+output "content_bucket_name" {
+  value       = google_storage_bucket.org_content.name
+  description = "Bucket holding this org's published artifacts."
+}

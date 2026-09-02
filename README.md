@@ -16,6 +16,7 @@ In your GCP project:
 - **Three firewall rules**: GCP load-balancer health-check ranges, the LB proxy subnet, and Cloud IAP for SSH debugging. Everything else is denied (VPC default).
 - **Internal Application Load Balancer**: skeleton with no host-rules yet — the platform adds per-VM rules at agent-provision time.
 - **PSC Service Attachment** in `ACCEPT_MANUAL` mode, accepting only the platform's project ID.
+- **One Cloud Storage bucket**, `{your-project-id}-content`: holds artifacts published from your agents. Public access prevention enforced; the impersonator gets `roles/storage.objectAdmin` scoped to this bucket only.
 
 Nothing is created in the platform's project; nothing is created outside the region you specify.
 
@@ -50,6 +51,7 @@ output "clawworker_outputs" {
     url_map_name          = module.clawworker.url_map_name
     health_check_name     = module.clawworker.health_check_name
     psc_connection_uri    = module.clawworker.psc_connection_uri
+    content_bucket_name   = module.clawworker.content_bucket_name
   }
 }
 ```
@@ -61,6 +63,14 @@ terraform init
 terraform plan
 terraform apply
 ```
+
+If `apply` fails on `google_storage_bucket.org_content` with a 409 conflict — typically *"Sorry, that name is not available"* — the default name belongs to an unrelated bucket somewhere else on GCS (bucket names are globally unique, not per-project). Re-apply with a name of your own:
+
+```
+terraform apply -var content_bucket_name_override=my-chosen-name
+```
+
+Any valid GCS bucket name works: 3–63 characters, lowercase letters, numbers and hyphens.
 
 Then paste the outputs (`terraform output clawworker_outputs`) into the ClawWorker onboarding wizard. The platform validates connectivity, creates its consumer PSC endpoint, and flips your org to self-hosted mode.
 
@@ -91,9 +101,17 @@ terraform destroy -target=google_service_account_iam_member.platform_can_imperso
 
 This removes the `tokenCreator` binding. The platform's next API call returns `PermissionDenied`; new agent provisioning is blocked. **Existing agent VMs keep running** as `cw-agent` — they aren't affected by impersonator revocation.
 
+Artifact publishing uses the same binding, so it stops too. Already-published artifacts stay in your bucket.
+
 To re-enable access, `terraform apply` again.
 
 For full teardown: `terraform destroy`. The platform's PSC consumer endpoint is in the platform's project (it remains there until the platform tears it down on org deletion).
+
+`terraform destroy` stops with `bucket is not empty` while published artifacts remain, rather than deleting them. Empty the bucket first:
+
+```
+gsutil -m rm -r gs://$(terraform output -raw content_bucket_name)/**
+```
 
 ## Audit visibility
 
