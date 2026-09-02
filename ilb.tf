@@ -39,7 +39,7 @@ resource "google_compute_region_url_map" "lb" {
   region          = var.region
   default_service = google_compute_region_backend_service.stub.id
 
-  # The Commandlyne owns per-agent routes created at runtime.
+  # The CommandLyne owns per-agent routes created at runtime.
   lifecycle {
     ignore_changes = [
       host_rule,
