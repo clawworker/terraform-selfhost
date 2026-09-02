@@ -38,6 +38,14 @@ resource "google_compute_region_url_map" "lb" {
   name            = "${var.resource_prefix}-url-map"
   region          = var.region
   default_service = google_compute_region_backend_service.stub.id
+
+  # The control panel owns per-agent routes created at runtime.
+  lifecycle {
+    ignore_changes = [
+      host_rule,
+      path_matcher,
+    ]
+  }
 }
 
 resource "google_compute_region_target_http_proxy" "lb" {
