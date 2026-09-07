@@ -1,0 +1,36 @@
+name: validate
+
+# Tenants consume this module straight from the default branch when they don't
+# pin a tag, so main has to stay applyable at every commit.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3.1.2
+        with:
+          terraform_version: 1.11.4
+          terraform_wrapper: false
+
+      - run: terraform fmt -check -recursive -diff
+
+      - name: validate module
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
+
+      - name: validate examples/basic
+        working-directory: examples/basic
+        run: |
+          terraform init -backend=false -input=false
+          terraform validate
