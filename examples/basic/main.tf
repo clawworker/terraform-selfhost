@@ -37,19 +37,8 @@ output "content_bucket_name" {
   value = module.clawworker.content_bucket_name
 }
 
-# Pass these to the ClawWorker onboarding wizard. Run:
+# Pass this to the ClawWorker onboarding wizard. Run:
 #   terraform output -json onboarding_payload
 output "onboarding_payload" {
-  value = {
-    gcp_project_id         = module.clawworker.project_id
-    impersonation_sa_email = module.clawworker.impersonator_sa_email
-    agent_sa_email         = module.clawworker.agent_sa_email
-    region                 = module.clawworker.region
-    network                = module.clawworker.network
-    subnet                 = module.clawworker.subnet
-    url_map_name           = module.clawworker.url_map_name
-    health_check_name      = module.clawworker.health_check_name
-    psc_connection_uri     = module.clawworker.psc_connection_uri
-    content_bucket_name    = module.clawworker.content_bucket_name
-  }
+  value = module.clawworker.onboarding_payload
 }
