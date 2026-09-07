@@ -1,11 +1,7 @@
 # Bucket names are unique across ALL of GCS, so the default can already be
 # taken. Apply then 409s on this bucket; set the override and re-apply.
 locals {
-  content_bucket_name = var.content_bucket_name_override == "" ? (
-    "${var.project_id}-content"
-  ) : (
-    var.content_bucket_name_override
-  )
+  content_bucket_name = var.content_bucket_name_override != "" ? var.content_bucket_name_override : "${var.project_id}-content"
 }
 
 # Holds artifacts published from agents in this project, so published content
