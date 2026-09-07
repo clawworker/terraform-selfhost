@@ -26,13 +26,13 @@ Nothing is created in the platform's project; nothing is created outside the reg
 - Local Terraform >= 1.5 and `gcloud auth application-default login` completed.
 - The **platform project ID** and **platform SA email** from the ClawWorker onboarding wizard.
 
-The module enables the GCP APIs it needs on your project automatically (`compute`, `iam`, `iamcredentials`, `servicenetworking`). It does **not** disable them on `terraform destroy` — your other workloads using those APIs aren't affected by a teardown of this module.
+The module enables the GCP APIs it needs on your project automatically (`compute`, `iam`, `iamcredentials`, `servicenetworking`, `storage`, `logging`, `monitoring`). It does **not** disable them on `terraform destroy` — your other workloads using those APIs aren't affected by a teardown of this module.
 
 ## Usage
 
 ```hcl
 module "clawworker" {
-  source  = "github.com/clawworker/terraform-selfhost?ref=v0.1.0"
+  source = "github.com/clawworker/terraform-selfhost?ref=v0.2.0"
 
   project_id          = "my-tenant-project"
   region              = "us-central1"           # must match the platform's region
@@ -40,19 +40,8 @@ module "clawworker" {
   platform_sa_email   = "control-panel-sa@clawworker-ai.iam.gserviceaccount.com"
 }
 
-output "clawworker_outputs" {
-  value = {
-    project_id            = module.clawworker.project_id
-    impersonator_sa_email = module.clawworker.impersonator_sa_email
-    agent_sa_email        = module.clawworker.agent_sa_email
-    region                = module.clawworker.region
-    network               = module.clawworker.network
-    subnet                = module.clawworker.subnet
-    url_map_name          = module.clawworker.url_map_name
-    health_check_name     = module.clawworker.health_check_name
-    psc_connection_uri    = module.clawworker.psc_connection_uri
-    content_bucket_name   = module.clawworker.content_bucket_name
-  }
+output "onboarding_payload" {
+  value = module.clawworker.onboarding_payload
 }
 ```
 
@@ -72,7 +61,7 @@ terraform apply -var content_bucket_name_override=my-chosen-name
 
 Any valid GCS bucket name works: 3–63 characters, lowercase letters, numbers and hyphens.
 
-Then paste the outputs (`terraform output clawworker_outputs`) into the ClawWorker onboarding wizard. The platform validates connectivity, creates its consumer PSC endpoint, and flips your org to self-hosted mode.
+Then paste the output of `terraform output -json onboarding_payload` into the ClawWorker onboarding wizard. The platform validates connectivity, creates its consumer PSC endpoint, and flips your org to self-hosted mode.
 
 There's a minimal working example in [`examples/basic/`](examples/basic).
 
